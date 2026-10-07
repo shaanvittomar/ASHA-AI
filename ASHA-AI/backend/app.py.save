@@ -1,0 +1,361 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    jwt_required,
+    get_jwt_identity
+)
+from dotenv import load_dotenv
+from google import genai
+import sqlite3
+import os
+from datetime import timedelta
+
+# ==================================================
+# LOAD ENVIRONMENT VARIABLES
+# ==================================================
+
+load_dotenv()
+
+# ==================================================
+# FLASK CONFIG
+# ==================================================
+
+app = Flask(__name__)
+CORS(app)
+
+app.config["JWT_SECRET_KEY"] = os.getenv(
+    "JWT_SECRET_KEY",
+    "asha-development-secret"
+)
+
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=7)
+
+jwt = JWTManager(app)
+
+# ==================================================
+# GEMINI CONFIG
+# ==================================================
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+if GEMINI_API_KEY:
+    print("Gemini API key: FOUND")
+    client = genai.Client(api_key=GEMINI_API_KEY)
+else:
+    print("Gemini API key: NOT FOUND")
+    client = None
+
+# ==================================================
+# DATABASE
+# ==================================================
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE = os.path.join(BASE_DIR, "asha.db")
+
+
+def get_db():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+# ==================================================
+# HOME
+# ==================================================
+
+@app.route("/")
+def home():
+    return jsonify({
+        "message": "ASHA AI backend is running",
+        "status": "online"
+    })
+
+
+# ==================================================
+# HEALTH
+# ==================================================
+
+@app.route("/api/health")
+def health():
+    return jsonify({
+        "status": "ok",
+        "service": "ASHA AI"
+    })
+
+
+# ==================================================
+# REGISTER
+# ==================================================
+
+@app.route("/api/register", methods=["POST"])
+def register():
+
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({
+            "error": "Invalid or missing JSON"
+        }), 400
+
+    email = data.get("email")
+    password = data.get("password")
+
+    if not email or not password:
+        return jsonify({
+            "error": "Email and password are required"
+        }), 400
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    try:
+
+        cursor.execute(
+            """
+            INSERT INTO users (email, password)
+            VALUES (?, ?)
+            """,
+            (email, password)
+        )
+
+        conn.commit()
+
+        user_id = cursor.lastrowid
+
+        return jsonify({
+            "message": "User registered successfully",
+            "user_id": user_id
+        }), 201
+
+    except sqlite3.IntegrityError:
+
+        return jsonify({
+            "error": "User already exists"
+        }), 409
+
+    except Exception as e:
+
+        print("REGISTER ERROR:", repr(e))
+
+        return jsonify({
+            "error": str(e)
+        }), 500
+
+    finally:
+        conn.close()
+
+
+# ==================================================
+# LOGIN
+# ==================================================
+
+@app.route("/api/login", methods=["POST"])
+def login():
+
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({
+            "error": "Invalid or missing JSON"
+        }), 400
+
+    email = data.get("email")
+    password = data.get("password")
+
+    if not email or not password:
+        return jsonify({
+            "error": "Email and password are required"
+        }), 400
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    try:
+
+        cursor.execute(
+            """
+            SELECT id, email
+            FROM users
+            WHERE email = ? AND password = ?
+            """,
+            (email, password)
+        )
+
+        user = cursor.fetchone()
+
+    except Exception as e:
+
+        print("LOGIN ERROR:", repr(e))
+
+        conn.close()
+
+        return jsonify({
+            "error": str(e)
+        }), 500
+
+    conn.close()
+
+    if not user:
+        return jsonify({
+            "error": "Invalid email or password"
+        }), 401
+
+    access_token = create_access_token(
+        identity=str(user["id"])
+    )
+
+    return jsonify({
+        "message": "Login successful",
+        "access_token": access_token,
+        "user": {
+            "id": user["id"],
+            "email": user["email"]
+        }
+    })
+
+
+# ==================================================
+# CURRENT USER
+# ==================================================
+
+@app.route("/api/me", methods=["GET"])
+@jwt_required()
+def me():
+
+    user_id = get_jwt_identity()
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    try:
+
+        cursor.execute(
+            """
+            SELECT id, email
+            FROM users
+            WHERE id = ?
+            """,
+            (user_id,)
+        )
+
+        user = cursor.fetchone()
+
+    except Exception as e:
+
+        conn.close()
+
+        return jsonify({
+            "error": str(e)
+        }), 500
+
+    conn.close()
+
+    if not user:
+        return jsonify({
+            "error": "User not found"
+        }), 404
+
+    return jsonify({
+        "id": user["id"],
+        "email": user["email"]
+    })
+
+
+# ==================================================
+# GEMINI CHAT
+# ==================================================
+
+@app.route("/api/chat", methods=["POST"])
+@jwt_required()
+def chat():
+
+    user_id = get_jwt_identity()
+
+    if client is None:
+        return jsonify({
+            "error": "GEMINI_API_KEY is not configured"
+        }), 500
+
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({
+            "error": "Invalid or missing JSON"
+        }), 400
+
+    message = data.get("message")
+
+    if not message or not isinstance(message, str):
+        return jsonify({
+            "error": "Message is required"
+        }), 400
+
+    message = message.strip()
+
+    if not message:
+        return jsonify({
+            "error": "Message cannot be empty"
+        }), 400
+
+    try:
+
+        print("ASHA received:", message)
+        print("Sending request to Gemini...")
+
+        response = client.models.generate_content(
+            model="gemini-3.6-flash",
+            contents=message
+        )
+
+        answer = response.text
+
+        print("Gemini response received.")
+
+        return jsonify({
+            "user_id": user_id,
+            "response": answer
+        })
+
+    except Exception as e:
+
+        print("=" * 60)
+        print("GEMINI ERROR")
+        print(repr(e))
+        print("=" * 60)
+
+        return jsonify({
+            "error": str(e)
+        }), 500
+
+
+# ==================================================
+# RUN SERVER
+# ==================================================
+
+if __name__ == "__main__":
+
+    print()
+    print("===================================")
+    print("          ASHA AI BACKEND")
+    print("===================================")
+
+    if GEMINI_API_KEY:
+        print("Gemini API key: FOUND")
+    else:
+        print("Gemini API key: NOT FOUND")
+
+    print("Database:", DATABASE)
+    print("Server: http://127.0.0.1:5000")
+
+    print("===================================")
+    print()
+
+    app.run(
+        host="127.0.0.1",
+        port=5000,
+        debug=True
+    )
+from database import ...
+A

@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ASHA AI</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         LOGIN
+    ========================== -->
+
+    <section id="authScreen" class="auth-screen">
+
+        <div class="auth-card">
+
+            <div class="asha-mark">A</div>
+
+            <h1>Welcome to ASHA</h1>
+
+            <p class="auth-subtitle">
+                A quiet space to pause, reflect and understand yourself.
+            </p>
+
+            <form id="loginForm">
+
+                <label for="email">Email</label>
+
+                <input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    required
+                >
+
+                <label for="password">Password</label>
+
+                <input
+                    id="password"
+                    type="password"
+                    placeholder="Your password"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Sign in
+                </button>
+
+            </form>
+
+            <p id="authMessage" class="form-message"></p>
+
+            <p class="auth-switch">
+                New to ASHA?
+
+                <button
+                    type="button"
+                    id="showRegister"
+                >
+                    Create an account
+                </button>
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         REGISTER
+    ========================== -->
+
+    <section
+        id="registerScreen"
+        class="auth-screen hidden"
+    >
+
+        <div class="auth-card">
+
+            <div class="asha-mark">A</div>
+
+            <h1>Create your space</h1>
+
+            <p class="auth-subtitle">
+                A personal place for your thoughts and reflections.
+            </p>
+
+            <form id="registerForm">
+
+                <label for="registerName">Name</label>
+
+                <input
+                    id="registerName"
+                    type="text"
+                    placeholder="Your name"
+                    required
+                >
+
+                <label for="registerEmail">Email</label>
+
+                <input
+                    id="registerEmail"
+                    type="email"
+                    placeholder="you@example.com"
+                    required
+                >
+
+                <label for="registerPassword">Password</label>
+
+                <input
+                    id="registerPassword"
+                    type="password"
+                    placeholder="At least 6 characters"
+                    minlength="6"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Create account
+                </button>
+
+            </form>
+
+            <p
+                id="registerMessage"
+                class="form-message"
+            ></p>
+
+            <p class="auth-switch">
+                Already have an account?
+
+                <button
+                    type="button"
+                    id="showLogin"
+                >
+                    Sign in
+                </button>
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         APPLICATION
+    ========================== -->
+
+    <div
+        id="appScreen"
+        class="app hidden"
+    >
+
+        <!-- SIDEBAR -->
+
+        <aside class="sidebar">
+
+            <div class="brand">
+
+                <div class="brand-mark">
+                    A
+                </div>
+
+                <div>
+                    <strong>ASHA</strong>
+                    <span>Mental Health Support</span>
+                </div>
+
+            </div>
+
+
+            <nav class="navigation">
+
+                <button
+                    class="nav-item active"
+                    data-page="today"
+                >
+                    <span>◌</span>
+                    Today
+                </button>
+
+                <button
+                    class="nav-item"
+                    data-page="journal"
+                >
+                    <span>✎</span>
+                    Journal
+                </button>
+
+                <button
+                    class="nav-item"
+                    data-page="mood"
+                >
+                    <span>♡</span>
+                    Mood
+                </button>
+
+                <button
+                    class="nav-item"
+                    data-page="talk"
+                >
+                    <span>◯</span>
+                    Talk to ASHA
+                </button>
+
+                <button
+                    class="nav-item"
+                    data-page="insights"
+                >
+                    <span>⌁</span>
+                    Insights
+                </button>
+
+            </nav>
+
+
+            <div class="sidebar-bottom">
+
+                <div class="user-card">
+
+                    <div
+                        class="user-avatar"
+                        id="userAvatar"
+                    >
+                        A
+                    </div>
+
+                    <div class="user-details">
+
+                        <strong id="userName">
+                            User
+                        </strong>
+
+                        <span id="userEmail">
+                            Personal space
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <button
+                    id="logoutButton"
+                    class="logout-button"
+                >
+                    Log out
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- MAIN -->
+
+        <main class="main-content">
+
+
+            <!-- =========================
+                 TODAY
+            ========================== -->
+
+            <section
+                id="todayPage"
+                class="page active-page"
+            >
+
+                <header class="page-header">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            TODAY
+                        </p>
+
+                        <h1 id="greeting">
+                            How are you feeling?
+                        </h1>
+
+                        <p>
+                            Take a moment to check in with yourself.
+                        </p>
+
+                    </div>
+
+                    <div
+                        class="date"
+                        id="todayDate"
+                    ></div>
+
+                </header>
+
+
+                <div class="hero-card">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            DAILY CHECK-IN
+                        </p>
+
+                        <h2>
+                            How are you feeling today?
+                        </h2>
+
+                        <p>
+                            There are no right or wrong answers.
+                            Just notice what is happening inside.
+                        </p>
+
+                    </div>
+
+                    <button
+                        class="primary-button"
+                        id="todayCheckin"
+                    >
+                        Check in
+                    </button>
+
+                </div>
+
+
+                <div class="section-heading">
+
+                    <h2>Take a moment</h2>
+
+                    <p>
+                        Small moments of reflection can make a difference.
+                    </p>
+
+                </div>
+
+
+                <div class="quick-grid">
+
+                    <button
+                        class="feature-card"
+                        id="homeJournal"
+                    >
+
+                        <span class="feature-icon">
+                            ✎
+                        </span>
+
+                        <h3>
+                            Write in your journal
+                        </h3>
+
+                        <p>
+                            Put your thoughts into words
+                            without judging them.
+                        </p>
+
+                        <span class="feature-link">
+                            Start writing →
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        class="feature-card"
+                        id="homeChat"
+                    >
+
+                        <span class="feature-icon">
+                            ◯
+                        </span>
+
+                        <h3>
+                            Talk to ASHA
+                        </h3>
+
+                        <p>
+                            Have something on your mind?
+                            You can talk it through.
+                        </p>
+
+                        <span class="feature-link">
+                            Start talking →
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+                <div class="section-heading">
+
+                    <h2>
+                        Recent mood
+                    </h2>
+
+                    <button
+                        class="text-button"
+                        id="viewMood"
+                    >
+                        View history →
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="recentMood"
+                    class="recent-mood"
+                >
+                    <p>
+                        Your recent check-ins will appear here.
+                    </p>
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 JOURNAL
+            ========================== -->
+
+            <section
+                id="journalPage"
+                class="page"
+            >
+
+                <header class="page-header">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            JOURNAL
+                        </p>
+
+                        <h1>
+                            Put your thoughts somewhere.
+                        </h1>
+
+                        <p>
+                            Write honestly. This space is yours.
+                        </p>
+
+                    </div>
+
+                </header>
+
+
+                <div class="journal-container">
+
+                    <div class="prompt-card">
+
+                        <p class="eyebrow">
+                            REFLECTION PROMPT
+                        </p>
+
+                        <h2 id="journalPrompt">
+                            How are you really doing today?
+                        </h2>
+
+                        <button
+                            id="newPrompt"
+                            class="text-button"
+                        >
+                            Another prompt
+                        </button>
+
+                    </div>
+
+
+                    <input
+                        id="journalTitle"
+                        class="journal-title"
+                        type="text"
+                        placeholder="Give this entry a title..."
+                    >
+
+
+                    <textarea
+                        id="journalText"
+                        class="journal-editor"
+                        placeholder="Start writing..."
+                    ></textarea>
+
+
+                    <div class="journal-actions">
+
+                        <span id="wordCount">
+                            0 words
+                        </span>
+
+                        <button
+                            id="saveJournal"
+                            class="primary-button"
+                        >
+                            Save entry
+                        </button>
+
+                    </div>
+
+                    <p
+                        id="journalMessage"
+                        class="form-message"
+                    ></p>
+
+                </div>
+
+
+                <div class="section-heading">
+
+                    <h2>
+                        Previous entries
+                    </h2>
+
+                </div>
+
+
+                <div id="journalList">
+                    <p class="loading">
+                        Loading your entries...
+                    </p>
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 MOOD
+            ========================== -->
+
+            <section
+                id="moodPage"
+                class="page"
+            >
+
+                <header class="page-header">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            MOOD
+                        </p>
+
+                        <h1>
+                            Check in with yourself.
+                        </h1>
+
+                        <p>
+                            Notice how you're feeling without judging it.
+                        </p>
+
+                    </div>
+
+                </header>
+
+
+                <div class="section-card">
+
+                    <h2>
+                        How are you feeling right now?
+                    </h2>
+
+                    <p>
+                        Choose a number from 1 to 10.
+                    </p>
+
+
+                    <div class="mood-scale">
+
+                        <button data-mood="1">1</button>
+                        <button data-mood="2">2</button>
+                        <button data-mood="3">3</button>
+                        <button data-mood="4">4</button>
+                        <button data-mood="5">5</button>
+                        <button data-mood="6">6</button>
+                        <button data-mood="7">7</button>
+                        <button data-mood="8">8</button>
+                        <button data-mood="9">9</button>
+                        <button data-mood="10">10</button>
+
+                    </div>
+
+
+                    <p
+                        id="selectedMood"
+                        class="selected-mood"
+                    >
+                        Select a number
+                    </p>
+
+
+                    <textarea
+                        id="moodNote"
+                        placeholder="Want to say a little more? (optional)"
+                    ></textarea>
+
+
+                    <button
+                        id="saveMood"
+                        class="primary-button"
+                    >
+                        Save check-in
+                    </button>
+
+                </div>
+
+
+                <div class="section-heading">
+
+                    <h2>
+                        Mood history
+                    </h2>
+
+                </div>
+
+
+                <div id="moodHistory">
+                    <p class="loading">
+                        Loading your mood history...
+                    </p>
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 TALK
+            ========================== -->
+
+            <section
+                id="talkPage"
+                class="page"
+            >
+
+                <header class="page-header">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            TALK TO ASHA
+                        </p>
+
+                        <h1>
+                            You can talk it out.
+                        </h1>
+
+                        <p>
+                            You don't need to know exactly what you're feeling.
+                        </p>
+
+                    </div>
+
+                </header>
+
+
+                <div
+                    id="chatMessages"
+                    class="chat-messages"
+                >
+                </div>
+
+
+                <form
+                    id="chatForm"
+                    class="chat-box"
+                >
+
+                    <textarea
+                        id="chatInput"
+                        placeholder="What's on your mind?"
+                        rows="1"
+                    ></textarea>
+
+                    <button
+                        type="submit"
+                        id="chatSend"
+                    >
+                        ↑
+                    </button>
+
+                </form>
+
+            </section>
+
+
+            <!-- =========================
+                 INSIGHTS
+            ========================== -->
+
+            <section
+                id="insightsPage"
+                class="page"
+            >
+
+                <header class="page-header">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            INSIGHTS
+                        </p>
+
+                        <h1>
+                            Notice your patterns.
+                        </h1>
+
+                        <p>
+                            Your check-ins can help you understand yourself over time.
+                        </p>
+
+                    </div>
+
+                </header>
+
+
+                <div class="insight-grid">
+
+                    <div class="stat-card">
+
+                        <span>
+                            CHECK-INS
+                        </span>
+
+                        <strong id="checkinCount">
+                            0
+                        </strong>
+
+                        <p>
+                            Total
+                        </p>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <span>
+                            JOURNALS
+                        </span>
+
+                        <strong id="journalCount">
+                            0
+                        </strong>
+
+                        <p>
+                            Total entries
+                        </p>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <span>
+                            AVERAGE MOOD
+                        </span>
+
+                        <strong id="averageMood">
+                            —
+                        </strong>
+
+                        <p>
+                            Based on check-ins
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="section-card">
+
+                    <p class="eyebrow">
+                        MOOD HISTORY
+                    </p>
+
+                    <h2>
+                        Your recent pattern
+                    </h2>
+
+                    <div id="moodTimeline">
+                        <p>
+                            Your mood history will appear here.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="notice-card">
+
+                    <strong>
+                        A gentle reminder
+                    </strong>
+
+                    <p>
+                        ASHA's insights are observations,
+                        not medical diagnoses.
+                    </p>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
